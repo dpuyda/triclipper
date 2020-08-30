@@ -1,0 +1,10 @@
+* Add binary operations
+* Add depth support
+* Add support of triangle strips
+* Add support of triangle fans
+* Add support of arbitrary polygons
+* Add triangulation of monotone polygons
+* Check triangle area in AddTriangle()
+* Use the vertex buffer for edge intersections
+* Use the vertex buffer for monotone polygons
+* Use the vertex buffer for the returned polygons

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="142.93315mm"
+   height="26.209373mm"
+   viewBox="0 0 142.93315 26.209374"
+   version="1.1"
+   id="svg48"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="edges.svg">
+  <defs
+     id="defs42">
+    <rect
+       x="5.2916665"
+       y="31.75"
+       width="55.5625"
+       height="29.104166"
+       id="rect1262" />
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker1217"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path1215" />
+    </marker>
+    <rect
+       id="rect1262-3"
+       height="29.104166"
+       width="55.5625"
+       y="31.75"
+       x="5.2916665" />
+    <rect
+       id="rect1275"
+       height="29.104166"
+       width="55.5625"
+       y="31.75"
+       x="5.2916665" />
+    <rect
+       id="rect1262-6"
+       height="29.104166"
+       width="55.5625"
+       y="31.75"
+       x="5.2916665" />
+    <rect
+       id="rect1304"
+       height="29.104166"
+       width="55.5625"
+       y="31.75"
+       x="5.2916665" />
+    <rect
+       x="5.2916665"
+       y="31.75"
+       width="55.5625"
+       height="29.104166"
+       id="rect1262-3-2" />
+    <rect
+       x="5.2916665"
+       y="31.75"
+       width="55.5625"
+       height="29.104166"
+       id="rect1333" />
+    <rect
+       id="rect1262-1"
+       height="29.104166"
+       width="55.5625"
+       y="31.75"
+       x="5.2916665" />
+    <rect
+       id="rect921"
+       height="29.104166"
+       width="55.5625"
+       y="31.75"
+       x="5.2916665" />
+    <rect
+       x="5.2916665"
+       y="31.75"
+       width="55.5625"
+       height="29.104166"
+       id="rect1262-3-7" />
+    <rect
+       x="5.2916665"
+       y="31.75"
+       width="55.5625"
+       height="29.104166"
+       id="rect951" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="401.65133"
+     inkscape:cy="48.377422"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid82"
+       spacingx="2.6458333"
+       spacingy="2.6458333"
+       originx="-7.1545327"
+       originy="-7.0201192" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata45">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-7.1545328,-7.0201192)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 13.229166,26.458333 39.6875,13.229166"
+       id="path841" />
+    <ellipse
+       style="fill:#000000;stroke:#000000;stroke-width:0.192088;stroke-opacity:1"
+       id="path843"
+       cx="13.185689"
+       cy="26.363836"
+       rx="0.96043754"
+       ry="0.96043742" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 119.06265,26.458333 h 26.45848"
+       id="path1189" />
+    <ellipse
+       ry="0.96043742"
+       rx="0.96043754"
+       cy="26.443748"
+       cx="119.15337"
+       id="path843-7"
+       style="fill:#000000;stroke:#000000;stroke-width:0.192088;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       id="text1260"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1262);fill:#000000;fill-opacity:1;stroke:none;"
+       transform="translate(1.5982448,-8.2853554)"><tspan
+         x="5.2910156"
+         y="41.405465"><tspan
+           style="font-size:4.93889px">start</tspan></tspan></text>
+    <text
+       transform="translate(29.954037,-25.483381)"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1262-3);fill:#000000;fill-opacity:1;stroke:none;"
+       id="text1260-7"
+       xml:space="preserve"><tspan
+         x="5.2910156"
+         y="36.255899"><tspan
+           style="font-size:4.93889px">end</tspan></tspan></text>
+    <text
+       transform="translate(107.75803,-8.4787613)"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1262-6);fill:#000000;fill-opacity:1;stroke:none;"
+       id="text1260-2"
+       xml:space="preserve"><tspan
+         x="5.2910156"
+         y="41.405465"><tspan
+           style="font-size:4.93889px">start</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text1260-7-0"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1262-3-2);fill:#000000;fill-opacity:1;stroke:none;"
+       transform="translate(136.09815,-3.1011647)"><tspan
+         x="5.2910156"
+         y="36.255899"><tspan
+           style="font-size:4.93889px">end</tspan></tspan></text>
+    <ellipse
+       ry="0.96043742"
+       rx="0.96043754"
+       cy="13.299381"
+       cx="39.50415"
+       id="path843-6"
+       style="fill:#000000;stroke:#000000;stroke-width:0.192088;stroke-opacity:1" />
+    <ellipse
+       ry="0.96043742"
+       rx="0.96043754"
+       cy="26.604244"
+       cx="145.31799"
+       id="path843-0"
+       style="fill:#000000;stroke:#000000;stroke-width:0.192088;stroke-opacity:1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 92.604166,26.458335 66.145833,13.229168"
+       id="path51" />
+    <ellipse
+       style="fill:#000000;stroke:#000000;stroke-width:0.192088;stroke-opacity:1"
+       id="path843-6-6"
+       cx="66.244202"
+       cy="13.325569"
+       rx="0.96043754"
+       ry="0.96043742" />
+    <ellipse
+       ry="0.96043742"
+       rx="0.96043754"
+       cy="26.474825"
+       cx="92.543388"
+       id="path843-6-6-0"
+       style="fill:#000000;stroke:#000000;stroke-width:0.192088;stroke-opacity:1" />
+    <text
+       transform="translate(81.511158,-8.5126694)"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1262-1);fill:#000000;fill-opacity:1;stroke:none;"
+       id="text1260-3"
+       xml:space="preserve"><tspan
+         x="5.2910156"
+         y="41.405465"><tspan
+           style="font-size:4.93889px">start</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text1260-7-9"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1262-3-7);fill:#000000;fill-opacity:1;stroke:none;"
+       transform="translate(56.386858,-25.416564)"><tspan
+         x="5.2910156"
+         y="36.255899"><tspan
+           style="font-size:4.93889px">end</tspan></tspan></text>
+  </g>
+</svg>
