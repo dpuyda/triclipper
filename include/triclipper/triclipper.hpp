@@ -91,10 +91,10 @@ class TriClipper {
     int dx_sign;
 
     /// The absolute value of `end.x - start.x`.
-    CoordinateType dx;
+    SignedAreaType dx;
 
     /// The value of `end.y - start.y`. The value is always positive.
-    CoordinateType dy;
+    SignedAreaType dy;
 
     /// `(end.x - start.x) / (end.y - start.y)` or `kInfiniteSlope` if the edge
     /// is horizontal.
@@ -418,8 +418,9 @@ TriClipper<VertexType, CoordinateType, SignedAreaType>::Edge::Edge(
   assert(start.y < end.y || (start.y == end.y && start.x <= end.x));
   bx = start.x;
   dx_sign = (start.x < end.x) - (end.x < start.x);
-  dx = dx_sign > 0 ? end.x - start.x : start.x - end.x;
-  dy = end.y - start.y;
+  dx = dx_sign > 0 ? static_cast<SignedAreaType>(end.x - start.x)
+                   : static_cast<SignedAreaType>(start.x - end.x);
+  dy = static_cast<SignedAreaType>(end.y - start.y);
   slope = dy ? dx_sign * static_cast<double>(dx) / dy : kInfiniteSlope;
 }
 
@@ -465,21 +466,15 @@ bool TriClipper<VertexType, CoordinateType, SignedAreaType>::IsSlopeLess(
   if (rhs->dx_sign < lhs->dx_sign) {
     return false;
   }
-  const auto cross_1 = static_cast<SignedAreaType>(lhs->dx) *
-                       static_cast<SignedAreaType>(rhs->dy);
-  const auto cross_2 = static_cast<SignedAreaType>(rhs->dx) *
-                       static_cast<SignedAreaType>(rhs->dy);
+  const auto cross_1 = lhs->dx * rhs->dy;
+  const auto cross_2 = rhs->dx * rhs->dy;
   return lhs->dx_sign > 0 ? cross_1 < cross_2 : cross_2 < cross_1;
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 bool TriClipper<VertexType, CoordinateType, SignedAreaType>::SlopeEqual(
     const Edge* lhs, const Edge* rhs) {
-  return lhs->dx_sign == rhs->dx_sign &&
-         static_cast<SignedAreaType>(lhs->dx) *
-                 static_cast<SignedAreaType>(rhs->dy) ==
-             static_cast<SignedAreaType>(rhs->dx) *
-                 static_cast<SignedAreaType>(lhs->dy);
+  return lhs->dx_sign == rhs->dx_sign && lhs->dx * rhs->dy == rhs->dx * lhs->dy;
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
@@ -495,10 +490,8 @@ bool TriClipper<VertexType, CoordinateType, SignedAreaType>::IsLess(
   if (lhs->dx_sign > rhs->dx_sign) {
     return false;
   }
-  const auto cross_1 = static_cast<SignedAreaType>(lhs->dx) *
-                       static_cast<SignedAreaType>(rhs->dy);
-  const auto cross_2 = static_cast<SignedAreaType>(rhs->dx) *
-                       static_cast<SignedAreaType>(lhs->dy);
+  const auto cross_1 = lhs->dx * rhs->dy;
+  const auto cross_2 = rhs->dx * lhs->dy;
   collinear = cross_1 == cross_2;
   return lhs->dx_sign > 0 ? cross_1 < cross_2 : cross_2 < cross_1;
 }
