@@ -25,8 +25,8 @@ monotone polygons is obtained as shown on the images below:
 
 ![example-1-7.svg](./img/example-1-7.svg)
 
-Sometimes, we need to take care about splitting ang joining the monotone
-polygons. For example:
+Sometimes, we need to take care of splitting ang joining the monotone polygons.
+For example:
 
 ![example-2-0.svg](./img/example-2-0.svg)
 
@@ -86,7 +86,7 @@ dots, the left-hand side edges are marked with red line segments and the
 right-hand side edges are marked with blue line segments.
 
 **Note:** If `l` and `r` are the first left-hand side edge and the first
-right-hand side edge, respectively, it holds `l.start == r.start`. If `e0` and
+right-hand side edge respectively, it holds `l.start == r.start`. If `e0` and
 `e1` are subsequent left-hand side or right-hand side edges, it holds
 `e0.end == e1.start`.
 
@@ -100,7 +100,7 @@ the scan line.
 
 ## Active edges
 
-A polygon edge is called **an active edge** if it is non-horizontal and
+A polygon edge is called an **active edge** if it is non-horizontal and
 intersects the scan line, starts on the scan line or ends on the scan line.
 An active edge is called **above the scan line** if it intersects the scan line
 or starts on the scan line. An active edge is called **below the scan line** if
@@ -113,7 +113,7 @@ below the scan line and the black edge is both above and below the scan line.
 
 Let `edge` be an active edge above the scan line and `x` be the X coordinate of
 the intersection of the edge and the scan line or, if the edge starts on
-the scan line, the X coordinate of the edge's start point. Active edges above
+the scan line, the X coordinate of the edge start point. Active edges above
 the scan line are sorted by `x` or, if the `x` values are equal, clockwise.
 For example:
 
@@ -121,7 +121,7 @@ For example:
 
 Similarly, let `edge` be an active edge below the scan line and `x` be the X
 coordinate of the intersection of the edge and the scan line or, if the edge
-ends on the scan line, the X coordinate of the edge's end point. Active edges
+ends on the scan line, the X coordinate of the edge end point. Active edges
 below the scan line are sorted by `x` or, if the `x` values are equal,
 counter-clockwise. For example:
 
@@ -169,8 +169,8 @@ are now **active edges above the scan line**.
 
 * For every edge that used to intersect the scan line or start on the scan line
 at its previous position and ends on the scan line at its current position,
-non-horizontal edges that are connected to it are now **active edges above
-the scan line**.
+non-horizontal edges that are connected to it and start on the scan line at its
+current position are now **active edges above the scan line**.
 
     ![find-active-edges-3.svg](./img/find-active-edges-3.svg)
 
@@ -203,8 +203,8 @@ to it become connected to the other edge. For example:
 
 For each active edge, let `x` be the X coordinate of the intersection point of
 the edge and the scan line or, if the edge starts on the scan line, the X
-coordinate of the edge's start point or, if the edge ends on the scan line,
-the X coordinate of the edge's end point. Among the active edges that are not
+coordinate of the edge start point or, if the edge ends on the scan line,
+the X coordinate of the edge end point. Among the active edges that are not
 processed yet, take the smallest value of `x`. For example:
 
 ![process-edges-1.svg](./img/process-edges-1.svg)
@@ -234,7 +234,7 @@ Process active edges that are connected with the red dot:
     ![process-edges-5.svg](./img/process-edges-5.svg)
 
 Next, among the active edges that are not processed yet, take the smallest value
-of `x` and repeat the procedure above until all active edges are processed.
+of `x` and repeat the above procedure until all active edges are processed.
 
 #### Split polygons
 
@@ -252,8 +252,8 @@ the polygon on the right must be joined. For example:
 
 ### Find edge intersections
 
-Let the scan line be located at `y1` and let `y2` be the smallest Y coordinate
-of edge's start point or end point such that `y2 > y1`. We need to find edge
+Let the scan line be located at `y1` and `y2` be the smallest Y coordinate of
+edge start point or end point such that `y2 > y1`. We need to find edge
 intersections in the scan beam between `y1` and `y2`. Intersections that are
 located at the bottom of the scan beam must not be included. Intersections that
 are located at the top of the scan beam must be included. For example:
@@ -269,10 +269,10 @@ edge intersects the top of the scan beam or ends at the top of the scan beam.
 
 Take the first active edge and add it to the auxiliary list of edges called
 the **sorted edge list (SEL)**. The edges in SEL will be sorted by decreasing
-of the X coordinate of their intersection with the top of the scan beam or, if
+the X coordinate of their intersection with the top of the scan beam or, if
 an edge ends at the top of the scan beam, the X coordinate of its end point.
-Edges with the same X coordinate are ordered by decreasing of the X coordinate
-of their intersection with the bottom of the scan beam or, if an edge starts at
+Edges with the same X coordinate are ordered by decreasing the X coordinate of
+their intersection with the bottom of the scan beam or, if an edge starts at
 the bottom of the scan beam, the X coordinate of its start point.
 
 ![intersections-2.svg](./img/intersections-2.svg)
@@ -287,14 +287,13 @@ Take the next active edge.
 On the image above, the active edge is marked with the red line segment.
 
 Take the first edge in SEL and observe that its intersection with the top of
-the scan beam is to the left from the active edge's intersection with the top of
-the scan beam (in our example, both edges end at the top of the scan beam, but
-here and in what follows, if an edge ends at the top of the scan beam, we
-consider its end point equivalent to an intersection of an edge and the top of
-the scan beam). Since all edges in SEL intersect the bottom of the scan beam to
-the left from the active edge, this means that the active edge does not
-intersect with the first edge in SEL. In this case, we add the active edge to
-SEL and continue.
+the scan beam is to the left from the active edge (in our example, both edges
+end at the top of the scan beam, but here and in what follows, if an edge ends
+at the top of the scan beam, we consider its end point equivalent to
+the intersection of an edge and the top of the scan beam). Since all edges in
+SEL intersect the bottom of the scan beam to the left from the active edge, this
+means that the active edge does not intersect with the first edge in SEL. In
+this case, add the active edge to SEL and continue.
 
 ![intersections-4.svg](./img/intersections-4.svg)
 
@@ -307,21 +306,19 @@ Take the next active edge.
 On the image above, the active edge is marked with the red line segment.
 
 Take the first edge in SEL. Observe that its intersection with the top of
-the scan beam is to the right from the active edge's intersection with the top
-of the scan beam. This means that the active edge intersects the first edge
-in SEL. In this case, we calculate the intersection and add it to the list of
-edge intersections.
+the scan beam is to the right from the active edge. This means that the active
+edge intersects the first edge in SEL. In this case, calculate the intersection
+and add it to the list of edge intersections.
 
 ![intersections-6.svg](./img/intersections-6.svg)
 
 On the image above, the intersection is marked with the red dot.
 
 Take the next edge in SEL. Observe that its intersection with the top of
-the scan beam is to the left from the active edge's intersection with the top of
-the scan beam. This means that the active edge does not intersect the edge
-in SEL (as well as the next edges in SEL, all of which intersect the top of
-the scan beam to the left from the active edge). In this case, we add the active
-edge to SEL and take the next active edge.
+the scan beam is to the left from the active edge. This means that the active
+edge does not intersect the edge in SEL (as well as the next edges in SEL, all
+of which intersect the top of the scan beam to the left from the active edge).
+In this case, add the active edge to SEL and take the next active edge.
 
 ![intersections-7.svg](./img/intersections-7.svg)
 
@@ -329,7 +326,7 @@ On the image above, the edges in SEL are marked with blue line segments and
 the active edge is marked with the red line segment. The intersection that is
 already added to the list of edge intersections is marked with the red dot.
 
-The procedure above is repeated until all active edges are processed.
+Repeat the above procedure until all active edges are processed.
 
 The summary of the algorithm looks as follows:
 
@@ -337,22 +334,21 @@ For each active edge above the scan line, iterate the edges in SEL to the first
 edge that intersects the top of the scan beam to the left from the active edge
 and, for each edge in SEL, add the intersection of the edge in SEL and
 the active edge to the list of edge intersections. Then, add the active edge to
-SEL and repeat the routine until all active edges are processed.
+SEL and repeat the same procedure until all active edges are processed.
 
 Note that if an edge in SEL intersects the top of the scan beam at the same
 point where the active edge does, the edge in SEL may or may not intersect
 the active edge. In this case, the edge in SEL intersects the active edge only
-if none of these edges end at the top of the scan beam.
+if none of these edges ends at the top of the scan beam.
 
 ### Process edge intersections
 
 When edge intersections in the scan beam between `y1` and `y2` are found, they
 must be processed.
 
-Let the scan line be located at `y1` and let `y` be the smallest Y coordinate
-of an edge intersection such that `y < y2`. When the active edges at `y1` are
-processed, the scan line is set at `y` and the active edges at `y` are
-processed.
+Let the scan line be located at `y1` and `y` be the smallest Y coordinate of
+an edge intersection such that `y < y2`. When the active edges at `y1` are
+processed, set the scan line at `y` and process the active edges at `y`.
 
 ![intersections-8.svg](./img/intersections-8.svg)
 
@@ -370,13 +366,13 @@ line at `y`, swap the intersecting edges.
 On the image above, the pairs of edges that must be swapped are marked with
 red line segments and blue line segments.
 
-When the active edges at `y` are found, they are processed as decribed in
+When the active edges at `y` are found, process them as described in
 [Process active edges](#process-active-edges).
 
-The operation that is described above is repeated until all intersections below
-the top of the scan beam are processed. For intersections that are located at
-the top of the scan beam, the intersecting edges are swapped to preserve
-the order of active edges above the scan line at `y2`.
+Repeat the above procedure until all intersections below the top of the scan
+beam are processed. For intersections that are located at the top of the scan
+beam, swap the intersecting edges preserve the order of active edges above
+the scan line at `y2`.
 
 ![intersections-10.svg](./img/intersections-10.svg)
 

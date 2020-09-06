@@ -16,7 +16,7 @@ If you are curious to know how TriClipper works in more detail, see
 
 ## Building Examples and Tests
 
-TriClipper comes with examples and tests that can be built using the CMake
+TriClipper comes with examples and tests which can be built using the CMake
 script [CMakeLists.txt](CMakeLists.txt).
 
 For example:
