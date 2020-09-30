@@ -11,4 +11,4 @@ struct Parameters {
 
 std::ostream& operator<<(std::ostream& stream, const Parameters& parameters);
 
-using PolygonsTest = testing::TestWithParam<Parameters>;
+using GetPolygonsTest = testing::TestWithParam<Parameters>;

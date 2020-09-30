@@ -1,4 +1,4 @@
-#include "polygons_test.hpp"
+#include "get_polygons_test.hpp"
 
 namespace {
 std::vector<Parameters> CreateParameters() {
@@ -203,6 +203,6 @@ std::vector<Parameters> CreateParameters() {
   return tests;
 }
 
-INSTANTIATE_TEST_SUITE_P(HorizontalEdges, PolygonsTest,
+INSTANTIATE_TEST_SUITE_P(HorizontalEdges, GetPolygonsTest,
                          testing::ValuesIn(CreateParameters()));
 }  // anonymous namespace

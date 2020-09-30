@@ -1,4 +1,4 @@
-#include "polygons_test.hpp"
+#include "get_polygons_test.hpp"
 
 #include <gtest/gtest.h>
 
@@ -6,7 +6,7 @@ std::ostream& operator<<(std::ostream& stream, const Parameters& parameters) {
   return stream << parameters.triangles;
 }
 
-TEST_P(PolygonsTest, Test) {
+TEST_P(GetPolygonsTest, Test) {
   const auto& parameters = GetParam();
 
   TriClipper32S clipper;
