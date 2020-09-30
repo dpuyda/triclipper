@@ -155,7 +155,7 @@ coordinates and remove the Y coordinate from the list.
 Find active edges **below the scan line**:
 
 * The edges that used to intersect the scan line or start on the scan line at
-its previous position are now **active edges below the scan line**.  
+its previous position are now **active edges below the scan line**.
 
     ![find-active-edges-1.svg](./img/find-active-edges-1.svg)
 
@@ -191,9 +191,9 @@ stored separately from the active edges.
 Collinear active edges must be avoided. If two active edges above the scan line
 are collinear, the edge that reaches higher is split into two parts, the part
 that overlaps with the other edge is removed and the remaining part becomes
-connected to the other edge. If the end points of the collinear edges have
-the same Y coordinate, one of them is removed and the edges that are connected
-to it become connected to the other edge. For example:
+connected to the other edge. If the end points of the collinear edges coincide,
+one of them is removed and the edges that are connected to it become connected
+to the other edge. For example:
 
 ![collinear-edges-1.svg](./img/collinear-edges-1.svg)
 
@@ -268,12 +268,12 @@ the active edges above the scan line from left to right. Note that each active
 edge intersects the top of the scan beam or ends at the top of the scan beam.
 
 Take the first active edge and add it to the auxiliary list of edges called
-the **sorted edge list (SEL)**. The edges in SEL will be sorted by decreasing
-the X coordinate of their intersection with the top of the scan beam or, if
-an edge ends at the top of the scan beam, the X coordinate of its end point.
-Edges with the same X coordinate are ordered by decreasing the X coordinate of
-their intersection with the bottom of the scan beam or, if an edge starts at
-the bottom of the scan beam, the X coordinate of its start point.
+**sorted edge list (SEL)**. The edges in SEL will be sorted by decreasing the X
+coordinate of their intersection with the top of the scan beam or, if an edge
+ends at the top of the scan beam, the X coordinate of its end point. Edges with
+the same X coordinate are sorted by decreasing the X coordinate of their
+intersection with the bottom of the scan beam or, if they start at the bottom of
+the scan beam, the X coordinate of their start points.
 
 ![intersections-2.svg](./img/intersections-2.svg)
 
@@ -286,14 +286,14 @@ Take the next active edge.
 
 On the image above, the active edge is marked with the red line segment.
 
-Take the first edge in SEL and observe that its intersection with the top of
-the scan beam is to the left from the active edge (in our example, both edges
-end at the top of the scan beam, but here and in what follows, if an edge ends
-at the top of the scan beam, we consider its end point equivalent to
-the intersection of an edge and the top of the scan beam). Since all edges in
-SEL intersect the bottom of the scan beam to the left from the active edge, this
-means that the active edge does not intersect with the first edge in SEL. In
-this case, add the active edge to SEL and continue.
+Take the first edge in SEL and notice that its intersection with the top of
+the scan beam is to the left from the active edge (in our example both edges end
+at the top of the scan beam, but here and in what follows, if an edge ends at
+the top of the scan beam, we consider its end point equivalent to
+the intersection of an edge and the top of the scan beam). Since the edge in SEL
+intersects the bottom of the scan beam to the left from the active edge,
+the active edge does not intersect the edge in SEL. In this case, add the active
+edge to SEL and continue.
 
 ![intersections-4.svg](./img/intersections-4.svg)
 
@@ -305,7 +305,7 @@ Take the next active edge.
 
 On the image above, the active edge is marked with the red line segment.
 
-Take the first edge in SEL. Observe that its intersection with the top of
+Take the first edge in SEL. Notice that its intersection with the top of
 the scan beam is to the right from the active edge. This means that the active
 edge intersects the first edge in SEL. In this case, calculate the intersection
 and add it to the list of edge intersections.
@@ -314,11 +314,11 @@ and add it to the list of edge intersections.
 
 On the image above, the intersection is marked with the red dot.
 
-Take the next edge in SEL. Observe that its intersection with the top of
-the scan beam is to the left from the active edge. This means that the active
-edge does not intersect the edge in SEL (as well as the next edges in SEL, all
-of which intersect the top of the scan beam to the left from the active edge).
-In this case, add the active edge to SEL and take the next active edge.
+Take the next edge in SEL. Notice that its intersection with the top of the scan
+beam is to the left from the active edge. This means that the active edge does
+not intersect the edge in SEL (as well as the next edges in SEL, all of which
+intersect the top of the scan beam to the left from the active edge) In this
+case, add the active edge to SEL and take the next active edge.
 
 ![intersections-7.svg](./img/intersections-7.svg)
 
@@ -328,7 +328,7 @@ already added to the list of edge intersections is marked with the red dot.
 
 Repeat the above procedure until all active edges are processed.
 
-The summary of the algorithm looks as follows:
+The summary of the above described algorithm looks as follows:
 
 For each active edge above the scan line, iterate the edges in SEL to the first
 edge that intersects the top of the scan beam to the left from the active edge
@@ -371,7 +371,7 @@ When the active edges at `y` are found, process them as described in
 
 Repeat the above procedure until all intersections below the top of the scan
 beam are processed. For intersections that are located at the top of the scan
-beam, swap the intersecting edges preserve the order of active edges above
+beam, swap the intersecting edges to preserve the order of active edges above
 the scan line at `y2`.
 
 ![intersections-10.svg](./img/intersections-10.svg)

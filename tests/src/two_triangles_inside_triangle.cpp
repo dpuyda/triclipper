@@ -1,4 +1,4 @@
-#include "polygons_test.hpp"
+#include "get_polygons_test.hpp"
 
 namespace {
 std::vector<Parameters> CreateParameters() {
@@ -85,6 +85,6 @@ std::vector<Parameters> CreateParameters() {
   return tests;
 }
 
-INSTANTIATE_TEST_SUITE_P(TwoTrianglesInsideTriangle, PolygonsTest,
+INSTANTIATE_TEST_SUITE_P(TwoTrianglesInsideTriangle, GetPolygonsTest,
                          testing::ValuesIn(CreateParameters()));
 }  // anonymous namespace
