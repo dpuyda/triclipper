@@ -7,7 +7,6 @@
 #include <cassert>
 #include <queue>
 #include <vector>
-
 #ifdef TRICLIPPER_DEBUG
 #include <ostream>
 #endif  // #ifdef TRICLIPPER_DEBUG
@@ -26,9 +25,9 @@ class TriClipper {
    * Adds a triangle to the `TriClipper` instance. The order of vertices does
    * not matter.
    *
-   * @param[in] v0 The triangle first vertex.
-   * @param[in] v1 The triangle second vertex.
-   * @param[in] v2 The triangle third vertex.
+   * @param[in] v0 The first triangle vertex.
+   * @param[in] v1 The second triangle vertex.
+   * @param[in] v2 The third triangle vertex.
    */
   void AddTriangle(const VertexType& v0, const VertexType& v1,
                    const VertexType& v2);
