@@ -73,8 +73,8 @@ class TriClipper {
   /// An edge of an added polygon. Edges are oriented from bottom to top or, if
   /// horizontal, from left to right.
   struct Edge {
-    Edge(const std::vector<VertexType>& vertices, size_t start_index,
-         size_t end_index, size_t index);
+    Edge(const std::vector<VertexType>& vertices, size_t start_index_value,
+         size_t end_index_value, size_t index_value);
 
     /// The index of the edge bottom or, if horizontal, left endpoint in
     /// `vertices_`.
@@ -132,7 +132,7 @@ class TriClipper {
 
   /// A closed horizontal interval.
   struct Interval {
-    Interval(CoordinateType left, CoordinateType right);
+    Interval(CoordinateType left_value, CoordinateType right_value);
 
     /// The interval left point.
     CoordinateType left;
@@ -143,7 +143,8 @@ class TriClipper {
 
   /// A local minimum of an added polygon.
   struct LocalMinimum {
-    LocalMinimum(size_t root_index, size_t left_index, size_t right_index);
+    LocalMinimum(size_t root_index_value, size_t left_index_value,
+                 size_t right_index_value);
 
     /// The index of the local minimum root in `vertices_`.
     size_t root_index;
@@ -162,7 +163,7 @@ class TriClipper {
   /// one of them must be split and the top part of it must be connected to
   /// the shorter edge.
   struct Joint {
-    Joint(Edge* to, Edge* edge);
+    Joint(Edge* to_value, Edge* edge_value);
 
     /// The edge that is connected.
     Edge* edge;
@@ -174,7 +175,8 @@ class TriClipper {
   /// An intersection of two edges. Collinear edges do not intersect. An
   /// intersection is never edge endpoint.
   struct Intersection {
-    Intersection(const VertexType& p, Edge* left, Edge* right);
+    Intersection(const VertexType& p_value, Edge* left_value,
+                 Edge* right_value);
 
     /// The intersection point.
     VertexType p;
@@ -392,11 +394,11 @@ TriClipper<VertexType, CoordinateType, SignedAreaType>::Polygon::Polygon()
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 TriClipper<VertexType, CoordinateType, SignedAreaType>::Edge::Edge(
-    const std::vector<VertexType>& vertices, const size_t start_index,
-    const size_t end_index, const size_t index)
-    : start_index(start_index),
-      end_index(end_index),
-      index(index),
+    const std::vector<VertexType>& vertices, const size_t start_index_value,
+    const size_t end_index_value, const size_t index_value)
+    : start_index(start_index_value),
+      end_index(end_index_value),
+      index(index_value),
       parity(0),
       prev_above(nullptr),
       next_above(nullptr),
@@ -415,30 +417,28 @@ TriClipper<VertexType, CoordinateType, SignedAreaType>::Edge::Edge(
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 TriClipper<VertexType, CoordinateType, SignedAreaType>::Interval::Interval(
-    const CoordinateType left, const CoordinateType right)
-    : left(left), right(right) {
+    const CoordinateType left_value, const CoordinateType right_value)
+    : left(left_value), right(right_value) {
   assert(left <= right);
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
-TriClipper<VertexType, CoordinateType,
-           SignedAreaType>::LocalMinimum::LocalMinimum(const size_t root_index,
-                                                       const size_t left_index,
-                                                       const size_t right_index)
-    : root_index(root_index),
-      left_index(left_index),
-      right_index(right_index) {}
+TriClipper<VertexType, CoordinateType, SignedAreaType>::LocalMinimum::
+    LocalMinimum(const size_t root_index_value, const size_t left_index_value,
+                 const size_t right_index_value)
+    : root_index(root_index_value),
+      left_index(left_index_value),
+      right_index(right_index_value) {}
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
-TriClipper<VertexType, CoordinateType, SignedAreaType>::Joint::Joint(Edge* to,
-                                                                     Edge* edge)
-    : edge(edge), to(to) {}
+TriClipper<VertexType, CoordinateType, SignedAreaType>::Joint::Joint(
+    Edge* to_value, Edge* edge_value)
+    : edge(edge_value), to(to_value) {}
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
-TriClipper<VertexType, CoordinateType,
-           SignedAreaType>::Intersection::Intersection(const VertexType& p,
-                                                       Edge* left, Edge* right)
-    : p(p), left(left), right(right) {}
+TriClipper<VertexType, CoordinateType, SignedAreaType>::Intersection::
+    Intersection(const VertexType& p_value, Edge* left_value, Edge* right_value)
+    : p(p_value), left(left_value), right(right_value) {}
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 bool TriClipper<VertexType, CoordinateType, SignedAreaType>::IsLess(
@@ -494,8 +494,9 @@ CoordinateType TriClipper<VertexType, CoordinateType,
   assert(end.y >= y);
   return end.y == y
              ? end.x
-             : round(start.x + edge->slope * (static_cast<double>(y) -
-                                              static_cast<double>(start.y)));
+             : static_cast<CoordinateType>(round(
+                   start.x + edge->slope * (static_cast<double>(y) -
+                                            static_cast<double>(start.y))));
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
@@ -1053,20 +1054,21 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersection(
     // `left` is vertical
     assert(right->slope != 0.);
     const auto x = vertices_[left->start_index].x;
-    const auto y =
+    const auto y = static_cast<CoordinateType>(
         round(vertices_[right->start_index].y +
               (static_cast<double>(vertices_[left->start_index].x) -
                static_cast<double>(vertices_[right->start_index].x)) /
-                  right->slope);
+                  right->slope));
     intersections_.emplace_back(VertexType(x, y), left, right);
   } else if (vertices_[right->start_index].y == vertices_[right->end_index].y) {
     // `right` is vertical
     assert(left->slope != 0.);
     const auto x = vertices_[right->start_index].x;
-    const auto y = round(vertices_[left->start_index].y +
-                         (static_cast<double>(vertices_[right->start_index].x) -
-                          static_cast<double>(vertices_[left->start_index].x)) /
-                             left->slope);
+    const auto y = static_cast<CoordinateType>(
+        round(vertices_[left->start_index].y +
+              (static_cast<double>(vertices_[right->start_index].x) -
+               static_cast<double>(vertices_[left->start_index].x)) /
+                  left->slope));
     intersections_.emplace_back(VertexType(x, y), left, right);
   } else {
     // Both `left` and `right` are non-vertical
@@ -1078,7 +1080,10 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersection(
     const auto x = std::abs(left->slope) < std::abs(right->slope)
                        ? left->slope * q + b1
                        : right->slope * q + b2;
-    intersections_.emplace_back(VertexType(round(x), round(q)), left, right);
+    intersections_.emplace_back(
+        VertexType(static_cast<CoordinateType>(round(x)),
+                   static_cast<CoordinateType>(round(q))),
+        left, right);
   }
 
   // The intersection point must be in the interval `(bottom_y, top_y]`
@@ -1132,7 +1137,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
     const auto top_x = Intersect(above, top_y);
     auto below = first_below_;
     Edge* prev_below = nullptr;
-    CoordinateType x;
+    CoordinateType x{};
     // Process edges that intersect the horizontal line at `top_y` to the right
     // from the active edge.
     while (below) {
