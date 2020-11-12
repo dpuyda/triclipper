@@ -15,7 +15,7 @@ TEST_P(GetPolygonsTest, Test) {
     clipper.AddTriangle(triangle[0], triangle[1], triangle[2]);
   }
 
-  clipper.Merge();
+  clipper.Execute();
 
   std::vector<Vertex32S> vertices;
   std::vector<size_t> offsets;
