@@ -35,10 +35,10 @@ class TriClipper {
   /**
    * Merges added polygons.
    */
-  void Merge();
+  void Execute();
 
   /**
-   * Gets the monotone polygons that are obtained as the result of the `Merge`
+   * Gets the monotone polygons that are obtained as the result of the `Execute`
    * operation.
    *
    * @note The polygons are clockwise oriented.
@@ -1414,7 +1414,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddTriangle(
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
-void TriClipper<VertexType, CoordinateType, SignedAreaType>::Merge() {
+void TriClipper<VertexType, CoordinateType, SignedAreaType>::Execute() {
   InitLocalMinimums();
 #ifdef TRICLIPPER_DEBUG
   PrintLocalMinimums(std::cout);

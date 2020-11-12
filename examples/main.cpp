@@ -21,7 +21,7 @@ int main() {
   clipper.AddTriangle({20, 0}, {0, 20}, {40, 40});
   clipper.AddTriangle({20, 10}, {10, 20}, {30, 30});
 
-  clipper.Merge();
+  clipper.Execute();
 
   std::vector<Vertex> vertices;
   std::vector<size_t> offsets;
