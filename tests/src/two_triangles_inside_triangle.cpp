@@ -1,8 +1,14 @@
 #include "get_polygons_test.hpp"
 
 namespace {
-std::vector<Parameters> CreateParameters() {
-  std::vector<Parameters> tests;
+using namespace triclipper;
+
+template <OperationType Operation>
+std::vector<Parameters<Operation>> CreateParameters();
+
+template <>
+std::vector<Parameters<OperationType::kMerge>> CreateParameters() {
+  std::vector<Parameters<OperationType::kMerge>> tests;
 
   {
     auto& test = tests.emplace_back();
@@ -85,6 +91,70 @@ std::vector<Parameters> CreateParameters() {
   return tests;
 }
 
-INSTANTIATE_TEST_SUITE_P(TwoTrianglesInsideTriangle, GetPolygonsTest,
-                         testing::ValuesIn(CreateParameters()));
+template <>
+std::vector<Parameters<OperationType::kUnion>> CreateParameters() {
+  std::vector<Parameters<OperationType::kUnion>> tests;
+
+  {
+    auto& test = tests.emplace_back();
+
+    test.triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{50, 50}, Vertex32S{100, 0}});
+    test.triangles.push_back(
+        {Vertex32S{20, 10}, Vertex32S{30, 20}, Vertex32S{40, 10}});
+    test.triangles.push_back(
+        {Vertex32S{60, 10}, Vertex32S{70, 20}, Vertex32S{80, 10}});
+
+    test.polygons.push_back({{0, 0}, {50, 50}, {100, 0}});
+  }
+
+  {
+    auto& test = tests.emplace_back();
+
+    test.triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{50, 50}, Vertex32S{100, 0}});
+    test.triangles.push_back(
+        {Vertex32S{20, 0}, Vertex32S{30, 10}, Vertex32S{40, 0}});
+    test.triangles.push_back(
+        {Vertex32S{60, 10}, Vertex32S{70, 20}, Vertex32S{80, 10}});
+
+    test.polygons.push_back({{0, 0}, {50, 50}, {100, 0}});
+  }
+
+  {
+    auto& test = tests.emplace_back();
+
+    test.triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{50, 50}, Vertex32S{100, 0}});
+    test.triangles.push_back(
+        {Vertex32S{20, 10}, Vertex32S{30, 20}, Vertex32S{40, 10}});
+    test.triangles.push_back(
+        {Vertex32S{60, 0}, Vertex32S{70, 10}, Vertex32S{80, 0}});
+
+    test.polygons.push_back({{0, 0}, {50, 50}, {100, 0}});
+  }
+
+  {
+    auto& test = tests.emplace_back();
+
+    test.triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{50, 50}, Vertex32S{100, 0}});
+    test.triangles.push_back(
+        {Vertex32S{40, 10}, Vertex32S{50, 20}, Vertex32S{60, 10}});
+    test.triangles.push_back(
+        {Vertex32S{40, 30}, Vertex32S{50, 40}, Vertex32S{60, 30}});
+
+    test.polygons.push_back({{0, 0}, {50, 50}, {100, 0}});
+  }
+
+  return tests;
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    TwoTrianglesInsideTriangle, MergeTest,
+    testing::ValuesIn(CreateParameters<OperationType::kMerge>()));
+
+INSTANTIATE_TEST_SUITE_P(
+    TwoTrianglesInsideTriangle, UnionTest,
+    testing::ValuesIn(CreateParameters<OperationType::kUnion>()));
 }  // anonymous namespace
