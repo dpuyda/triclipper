@@ -4,11 +4,20 @@
 
 #include "types.hpp"
 
+template <triclipper::OperationType Operation>
 struct Parameters {
   std::vector<Triangle32S> triangles;
   std::vector<Polygon32S> polygons;
 };
 
-std::ostream& operator<<(std::ostream& stream, const Parameters& parameters);
+using MergeTest =
+    testing::TestWithParam<Parameters<triclipper::OperationType::kMerge>>;
 
-using GetPolygonsTest = testing::TestWithParam<Parameters>;
+using UnionTest =
+    testing::TestWithParam<Parameters<triclipper::OperationType::kUnion>>;
+
+template <triclipper::OperationType Operation>
+std::ostream& operator<<(std::ostream& stream,
+                         const Parameters<Operation>& parameters) {
+  return stream << parameters.triangles;
+}

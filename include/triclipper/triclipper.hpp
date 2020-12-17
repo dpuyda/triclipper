@@ -6,12 +6,30 @@
 #include <algorithm>
 #include <cassert>
 #include <queue>
+#include <type_traits>
 #include <vector>
 #ifdef TRICLIPPER_DEBUG
 #include <ostream>
 #endif  // #ifdef TRICLIPPER_DEBUG
 
 namespace triclipper {
+/**
+ * The type of the operation that can executed on the added polygons.
+ */
+enum class OperationType {
+  /**
+   * If you select this option, `TriClipper` will run the scan line operation on
+   * the added polygons and all polygon edges will contribute.
+   */
+  kMerge = 0,
+
+  /**
+   * If you select this option, `TriClipper` will calculate the union of all
+   * added polygons.
+   */
+  kUnion,
+};
+
 template <typename VertexType, typename CoordinateType,
           typename SignedAreaType = long>
 class TriClipper {
@@ -33,8 +51,9 @@ class TriClipper {
                    const VertexType& v2);
 
   /**
-   * Merges added polygons.
+   * Executes an operation on the added polygons.
    */
+  template <OperationType Operation>
   void Execute();
 
   /**
@@ -94,7 +113,7 @@ class TriClipper {
     /// The absolute value of `end.x - start.x`.
     SignedAreaType dx;
 
-    /// The value of `end.y - start.y`. The value is always positive.
+    /// The value of `end.y - start.y`. The value is always non-negative.
     SignedAreaType dy;
 
     /// `(end.x - start.x) / (end.y - start.y)` or `kInfiniteSlope` if the edge
@@ -114,16 +133,13 @@ class TriClipper {
     /// Indices of the connected edges in `edges_`. An edge is connected to
     /// the current one if its start point coincides with the current edge end
     /// point.
-    std::vector<size_t> next_indices;
+    std::vector<size_t> connected_indices;
+
+    /// The next edges above and below the scan line.
+    Edge* next[2];
 
     /// The previous edge above the scan line.
     Edge* prev_above;
-
-    /// The next edge above the scan line.
-    Edge* next_above;
-
-    /// The next edge below the scan line.
-    Edge* next_below;
 
     /// The index of the polygon to the right from the edge in `polygons_`.
     size_t polygon_index;
@@ -186,6 +202,24 @@ class TriClipper {
     /// The right-hand side edge below the intersection point.
     Edge* right;
   };
+
+  /// The infinite index value. Used to initialize index values.
+  static constexpr size_t kInfiniteIndex = std::numeric_limits<size_t>::max();
+
+  /// The `slope` value of horizontal edges.
+  static constexpr double kInfiniteSlope = std::numeric_limits<double>::max();
+
+  // The index of values related to edges above the scan line.
+  static constexpr int kAbove = 0;
+
+  // The index of values related to edges below the scan line.
+  static constexpr int kBelow = 1;
+
+  /// Initial parity of left-hand side edges.
+  static constexpr int kLeft = 1;
+
+  /// Initial parity of right-hand side edges.
+  static constexpr int kRight = -1;
 
   /// Checks if `lhs.y < rhs.y` or `lhs.y == rhs.y && lhs.x < rhs.x`.
   static bool IsLess(const VertexType& lhs, const VertexType& rhs);
@@ -295,7 +329,16 @@ class TriClipper {
       CoordinateType x0, CoordinateType x1,
       const typename std::vector<Interval>::iterator& interval) const;
 
+  /// Checks if an edge contributes.
+  template <OperationType Operation>
+  static bool IsContributing(Edge* edge, int parity);
+
+  /// Finds the next contributing edge above or below the scan line.
+  template <int Side, OperationType Operation>
+  Edge* MoveForward(Edge* edge, int& parity) const;
+
   /// Processes active edges.
+  template <OperationType Operation>
   void ProcessEdges(CoordinateType scan_line_y);
 
   /// Joins the edges that are stored in `joints_`. See the documentation for
@@ -306,7 +349,7 @@ class TriClipper {
   void AddIntersection(Edge* left, Edge* right, CoordinateType bottom_y,
                        CoordinateType top_y);
 
-  /// Adds an edge to `first_below_`.
+  /// Adds an edge to active edges below the scan line.
   void AddToBelow(Edge* edge, Edge* add_after);
 
   /// Finds edge intersections with Y coordinates in the interval
@@ -314,6 +357,7 @@ class TriClipper {
   void AddIntersections(CoordinateType bottom_y, CoordinateType top_y);
 
   /// Processes edge intersections is the scan beam above the scan line.
+  template <OperationType Operation>
   void ProcessIntersections(CoordinateType scan_line_y);
 
 #ifdef TRICLIPPER_DEBUG
@@ -326,18 +370,6 @@ class TriClipper {
   /// Prints the monotone polygons to a given stream.
   void PrintPolygons(std::ostream& stream) const;
 #endif  // #ifdef TRICLIPPER_DEBUG
-
-  /// The infinite index value. Used to initialize index values.
-  static constexpr size_t kInfiniteIndex = std::numeric_limits<size_t>::max();
-
-  /// The `slope` value of horizontal edges.
-  static constexpr double kInfiniteSlope = std::numeric_limits<double>::max();
-
-  /// Initial parity of left-hand side edges.
-  static constexpr int kLeft = 1;
-
-  /// Initial parity of right-hand side edges.
-  static constexpr int kRight = -1;
 
   /// Vertices of the added polygons.
   std::vector<VertexType> vertices_;
@@ -363,15 +395,11 @@ class TriClipper {
                       std::greater<> >
       scan_lines_y_;
 
-  /// The first active edge above the scan line. Active edges above the scan
-  /// line are edges that intersect the scan line or start on the scan line.
-  /// Active edges cannot be horizontal.
-  Edge* first_above_;
-
-  /// The first active edge below the scan line. Active edges below the scan
-  /// line are edges that intersect the scan line or end on the scan line.
-  /// Active edges cannot be horizontal.
-  Edge* first_below_;
+  /// The first active edges above and below the scan line. Active edges above
+  /// the scan line are edges that intersect the scan line or start on the scan
+  /// line. Active edges above the scan line are edges that intersect the scan
+  /// line or start on the scan line. Active edges cannot be horizontal.
+  Edge* first_[2];
 
   /// Edge intersections.
   std::vector<Intersection> intersections_;
@@ -399,9 +427,8 @@ TriClipper<VertexType, CoordinateType, SignedAreaType>::Edge::Edge(
       end_index(end_index_value),
       index(index_value),
       parity(0),
+      next{nullptr, nullptr},
       prev_above(nullptr),
-      next_above(nullptr),
-      next_below(nullptr),
       polygon_index(kInfiniteIndex) {
   const auto& start = vertices[start_index];
   const auto& end = vertices[end_index];
@@ -557,13 +584,13 @@ TriClipper<VertexType, CoordinateType, SignedAreaType>::AddCollinearEdge(
   // `edge` is shorter than `active_edge`, split `active_edge`
   if (edge_y < active_edge_y) {
     joints_.emplace_back(edge, active_edge);
-    edge->next_above = active_edge->next_above;
+    edge->next[kAbove] = active_edge->next[kAbove];
     edge->prev_above = active_edge->prev_above;
-    if (edge->next_above) {
-      edge->next_above->prev_above = edge;
+    if (edge->next[kAbove]) {
+      edge->next[kAbove]->prev_above = edge;
     }
     if (edge->prev_above) {
-      edge->prev_above->next_above = edge;
+      edge->prev_above->next[kAbove] = edge;
     }
     edge->parity += active_edge->parity;
     return edge;
@@ -578,9 +605,9 @@ TriClipper<VertexType, CoordinateType, SignedAreaType>::AddCollinearEdge(
 
   // The edges are of the same length, attach `edge` continuation to
   // `active_edge`
-  active_edge->next_indices.insert(active_edge->next_indices.begin(),
-                                   edge->next_indices.begin(),
-                                   edge->next_indices.end());
+  active_edge->connected_indices.insert(active_edge->connected_indices.begin(),
+                                        edge->connected_indices.begin(),
+                                        edge->connected_indices.end());
   active_edge->parity += edge->parity;
   return active_edge;
 }
@@ -589,48 +616,48 @@ template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 typename TriClipper<VertexType, CoordinateType, SignedAreaType>::Edge*
 TriClipper<VertexType, CoordinateType, SignedAreaType>::AddEdge(
     Edge* edge, Edge* add_after) {
-  if (!first_above_) {
-    first_above_ = edge;
+  if (!first_[kAbove]) {
+    first_[kAbove] = edge;
     edge->prev_above = nullptr;
-    edge->next_above = nullptr;
-    return first_above_;
+    edge->next[kAbove] = nullptr;
+    return first_[kAbove];
   }
 
-  // Check if the edge must be added before `first_above_`.
+  // Check if the edge must be added before `first_[kAbove]`.
   bool collinear = false;
-  if (IsLess(edge, first_above_, collinear)) {
+  if (IsLess(edge, first_[kAbove], collinear)) {
     edge->prev_above = nullptr;
-    edge->next_above = first_above_;
-    first_above_->prev_above = edge;
-    first_above_ = edge;
+    edge->next[kAbove] = first_[kAbove];
+    first_[kAbove]->prev_above = edge;
+    first_[kAbove] = edge;
     return edge;
   }
   if (collinear) {
-    first_above_ = AddCollinearEdge(edge, first_above_);
-    return first_above_;
+    first_[kAbove] = AddCollinearEdge(edge, first_[kAbove]);
+    return first_[kAbove];
   }
 
   // Add the new edge after `add_after`.
   if (!add_after) {
-    add_after = first_above_;
+    add_after = first_[kAbove];
   }
 
-  while (add_after->next_above &&
-         IsLess(add_after->next_above, edge, collinear)) {
-    add_after = add_after->next_above;
+  while (add_after->next[kAbove] &&
+         IsLess(add_after->next[kAbove], edge, collinear)) {
+    add_after = add_after->next[kAbove];
   }
   if (collinear) {
-    return AddCollinearEdge(edge, add_after->next_above);
+    return AddCollinearEdge(edge, add_after->next[kAbove]);
   }
 
-  edge->next_above = add_after->next_above;
+  edge->next[kAbove] = add_after->next[kAbove];
   edge->prev_above = add_after;
 
-  if (add_after->next_above) {
-    add_after->next_above->prev_above = edge;
+  if (add_after->next[kAbove]) {
+    add_after->next[kAbove]->prev_above = edge;
   }
 
-  add_after->next_above = edge;
+  add_after->next[kAbove] = edge;
   return edge;
 }
 
@@ -652,7 +679,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddLocalMinimums(
            vertices_[right_edge->end_index].y) {
       intervals_.emplace_back(vertices_[right_edge->start_index].x,
                               vertices_[right_edge->end_index].x);
-      right_edge = &edges_[right_edge->next_indices[0]];
+      right_edge = &edges_[right_edge->connected_indices[0]];
     }
     AddEdge(right_edge, insert_after);
 
@@ -665,22 +692,22 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddLocalMinimums(
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::UpdateEdges(
     const CoordinateType scan_line_y) {
-  auto* edge = first_above_;
+  auto* edge = first_[kAbove];
   while (edge) {
     assert(vertices_[edge->end_index].y >= scan_line_y);
     edge->bx = Intersect(edge, scan_line_y);
-    edge = edge->next_above;
+    edge = edge->next[kAbove];
   }
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType,
                 SignedAreaType>::CopyAboveToBelow() {
-  first_below_ = first_above_;
-  auto* edge = first_above_;
+  first_[kBelow] = first_[kAbove];
+  auto* edge = first_[kAbove];
   while (edge) {
-    edge->next_below = edge->next_above;
-    edge = edge->next_above;
+    edge->next[kBelow] = edge->next[kAbove];
+    edge = edge->next[kAbove];
   }
 }
 
@@ -688,13 +715,13 @@ template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::
     AddIntermediateEdges(const CoordinateType scan_line_y) {
   static std::queue<Edge*> intermediate_edges;
-  auto* edge = first_below_;
+  auto* edge = first_[kBelow];
   while (edge) {
     if (vertices_[edge->end_index].y == scan_line_y) {
       assert(intermediate_edges.empty());
       auto intermediate_edge = edge;
       do {
-        for (const auto index : intermediate_edge->next_indices) {
+        for (const auto index : intermediate_edge->connected_indices) {
           auto* next_edge = &edges_[index];
           if (vertices_[next_edge->end_index].y == scan_line_y) {
             intervals_.emplace_back(vertices_[next_edge->start_index].x,
@@ -711,7 +738,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::
         intermediate_edges.pop();
       } while (true);
     }
-    edge = edge->next_below;
+    edge = edge->next[kBelow];
   }
 }
 
@@ -739,60 +766,60 @@ void TriClipper<VertexType, CoordinateType,
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::SwapEdges(
     Edge* e1, Edge* e2) {
-  if (e1->next_above == e2) {
+  if (e1->next[kAbove] == e2) {
     // `e1` precedes `e2`
-    const auto next = e2->next_above;
+    const auto next = e2->next[kAbove];
     if (next) {
       next->prev_above = e1;
     }
-    const auto prev = e1->prev_above;
-    if (prev) {
-      prev->next_above = e2;
+    const auto prev_above = e1->prev_above;
+    if (prev_above) {
+      prev_above->next[kAbove] = e2;
     }
-    e2->prev_above = prev;
-    e2->next_above = e1;
+    e2->prev_above = prev_above;
+    e2->next[kAbove] = e1;
     e1->prev_above = e2;
-    e1->next_above = next;
-  } else if (e2->next_above == e1) {
+    e1->next[kAbove] = next;
+  } else if (e2->next[kAbove] == e1) {
     // `e2` precedes `e1`
-    const auto next = e1->next_above;
+    const auto next = e1->next[kAbove];
     if (next) {
       next->prev_above = e2;
     }
-    const auto prev = e2->prev_above;
-    if (prev) {
-      prev->next_above = e1;
+    const auto prev_above = e2->prev_above;
+    if (prev_above) {
+      prev_above->next[kAbove] = e1;
     }
-    e1->prev_above = prev;
-    e1->next_above = e2;
+    e1->prev_above = prev_above;
+    e1->next[kAbove] = e2;
     e2->prev_above = e1;
-    e2->next_above = next;
+    e2->next[kAbove] = next;
   } else {
     // None of `e1` and `e2` precedes the other edge
-    const auto next = e1->next_above;
-    const auto prev = e1->prev_above;
-    e1->next_above = e2->next_above;
-    if (e1->next_above) {
-      e1->next_above->prev_above = e1;
+    const auto next = e1->next[kAbove];
+    const auto prev_above = e1->prev_above;
+    e1->next[kAbove] = e2->next[kAbove];
+    if (e1->next[kAbove]) {
+      e1->next[kAbove]->prev_above = e1;
     }
     e1->prev_above = e2->prev_above;
     if (e1->prev_above) {
-      e1->prev_above->next_above = e1;
+      e1->prev_above->next[kAbove] = e1;
     }
-    e2->next_above = next;
-    if (e2->next_above) {
-      e2->next_above->prev_above = e2;
+    e2->next[kAbove] = next;
+    if (e2->next[kAbove]) {
+      e2->next[kAbove]->prev_above = e2;
     }
-    e2->prev_above = prev;
+    e2->prev_above = prev_above;
     if (e2->prev_above) {
-      e2->prev_above->next_above = e2;
+      e2->prev_above->next[kAbove] = e2;
     }
   }
 
   if (!e1->prev_above) {
-    first_above_ = e1;
+    first_[kAbove] = e1;
   } else if (!e2->prev_above) {
-    first_above_ = e2;
+    first_[kAbove] = e2;
   }
 }
 
@@ -949,15 +976,54 @@ bool TriClipper<VertexType, CoordinateType, SignedAreaType>::Connected(
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
+template <OperationType Operation>
+bool TriClipper<VertexType, CoordinateType, SignedAreaType>::IsContributing(
+    Edge* edge, int parity) {
+  if (Operation == OperationType::kMerge) {
+    return true;
+  }
+  if (Operation == OperationType::kUnion) {
+    return parity == 0 || parity + edge->parity == 0;
+  }
+  assert(false);
+  return false;
+}
+
+template <typename VertexType, typename CoordinateType, typename SignedAreaType>
+template <int Side, OperationType Operation>
+typename TriClipper<VertexType, CoordinateType, SignedAreaType>::Edge*
+TriClipper<VertexType, CoordinateType, SignedAreaType>::MoveForward(
+    Edge* edge, int& parity) const {
+  assert(Side == kAbove || Side == kBelow);
+  if (!edge) {
+    return nullptr;
+  }
+  do {
+    parity += edge->parity;
+    edge = edge->next[Side];
+  } while (edge && !IsContributing<Operation>(edge, parity));
+  return edge;
+}
+
+template <typename VertexType, typename CoordinateType, typename SignedAreaType>
+template <OperationType Operation>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
     const CoordinateType scan_line_y) {
-  auto* above = first_above_;
-  auto* below = first_below_;
+  int parity[2] = {0, 0};
+  auto* above =
+      IsContributing<Operation>(first_[kAbove], parity[kAbove])
+          ? first_[kAbove]
+          : MoveForward<kAbove, Operation>(first_[kAbove], parity[kAbove]);
+  auto* below =
+      IsContributing<Operation>(first_[kBelow], parity[kBelow])
+          ? first_[kBelow]
+          : MoveForward<kBelow, Operation>(first_[kBelow], parity[kBelow]);
+  auto* next_above = MoveForward<kAbove, Operation>(above, parity[kAbove]);
+  auto* next_below = MoveForward<kBelow, Operation>(below, parity[kBelow]);
   Edge* prev_above = nullptr;
   Edge* prev_below = nullptr;
   auto interval = intervals_.begin();
   auto polygon_index = kInfiniteIndex;
-  int parity = 0;
 
   while (above || below) {
     const auto x = above && below ? std::min(above->bx, below->bx)
@@ -967,7 +1033,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
       ++interval;
     }
 
-    // Add right-hand side vertices to the polygon that is to the left
+    // Add right-hand side vertices to the polygon on the left
     if (above && below && above != below && polygon_index != kInfiniteIndex) {
       if (above->bx == below->bx && !SlopeEqual(above, below)) {
         AddRight(polygon_index, x, scan_line_y);
@@ -982,34 +1048,34 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
       }
     }
 
-    // Finish the polygons between `below` and `below->next_below`
+    // Finish the polygons between `below` and `next_below`
     if (below && (below->bx == x || Connected(x, below->bx, interval))) {
-      while (below && below->next_below &&
-             (below->next_below->bx == below->bx ||
-              Connected(below->bx, below->next_below->bx, interval))) {
-        FinishPolygon(below, below->bx, below->next_below->bx, scan_line_y);
+      while (below && next_below &&
+             (below->bx == next_below->bx ||
+              Connected(below->bx, next_below->bx, interval))) {
+        FinishPolygon(below, below->bx, next_below->bx, scan_line_y);
         prev_below = below;
-        below = below->next_below;
+        below = next_below;
+        next_below = MoveForward<kBelow, Operation>(below, parity[kBelow]);
       }
       polygon_index = below->polygon_index;
     }
 
-    // Start the polygons between `above` and `above->next_above`
+    // Start the polygons between `above` and `next_above`
     if (above && (above->bx == x || Connected(x, above->bx, interval))) {
-      parity += above->parity;
-      while (above && above->next_above &&
-             (above->next_above->bx == above->bx ||
-              Connected(above->bx, above->next_above->bx, interval))) {
-        if (parity != 0) {
-          StartPolygon(above, above->bx, above->next_above->bx, scan_line_y);
+      while (above && next_above &&
+             (above->bx == next_above->bx ||
+              Connected(above->bx, next_above->bx, interval))) {
+        if (parity[kAbove] != 0) {
+          StartPolygon(above, above->bx, next_above->bx, scan_line_y);
         }
         prev_above = above;
-        above = above->next_above;
-        parity += above->parity;
+        above = next_above;
+        next_above = MoveForward<kAbove, Operation>(above, parity[kAbove]);
       }
     }
 
-    // Add left-hand side vertices to the polygon that is to the right
+    // Add left-hand side vertices to the polygon on the right
     if (polygon_index != kInfiniteIndex && above && below && above != below &&
         (above->bx == x || Connected(x, above->bx, interval)) &&
         (below->bx == x || Connected(x, below->bx, interval))) {
@@ -1026,12 +1092,14 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
 
     if (below && (below->bx == x || Connected(x, below->bx, interval))) {
       prev_below = below;
-      below = below->next_below;
+      below = next_below;
+      next_below = MoveForward<kBelow, Operation>(below, parity[kBelow]);
     }
 
     if (above && (above->bx == x || Connected(x, above->bx, interval))) {
       prev_above = above;
-      above = above->next_above;
+      above = next_above;
+      next_above = MoveForward<kAbove, Operation>(above, parity[kAbove]);
     }
   }
 }
@@ -1041,7 +1109,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessJoints() {
   for (const auto& joint : joints_) {
     joint.edge->start_index = joint.to->end_index;
     joint.edge->bx = vertices_[joint.to->end_index].x;
-    joint.to->next_indices.push_back(joint.edge->index);
+    joint.to->connected_indices.push_back(joint.edge->index);
   }
 }
 
@@ -1104,19 +1172,19 @@ template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddToBelow(
     Edge* edge, Edge* add_after) {
   if (add_after) {
-    edge->next_below = add_after->next_below;
-    add_after->next_below = edge;
+    edge->next[kBelow] = add_after->next[kBelow];
+    add_after->next[kBelow] = edge;
   } else {
-    // Add the new edge before `first_below_`
-    edge->next_below = first_below_;
-    first_below_ = edge;
+    // Add the new edge before `first_[kBelow]`
+    edge->next[kBelow] = first_[kBelow];
+    first_[kBelow] = edge;
   }
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
     const CoordinateType bottom_y, const CoordinateType top_y) {
-  // We use an auxiliary sorted edge list (SEL), stored in `first_below_`, to
+  // We use an auxiliary sorted edge list (SEL), stored in `first_[kBelow]`, to
   // find edge intersections in the scan beam between `scan_line_y` and `top_y`.
   // The edges in SEL are sorted from right to left by their intersections with
   // the horizontal line at `top_y`. We initialize SEL by the first active edge
@@ -1129,12 +1197,12 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
   // at `top_y` to the left from the active edge and add their intersections
   // with the active edge. When all intersections are added, the active edge is
   // added to SEL.
-  first_below_ = first_above_;
-  first_below_->next_below = nullptr;
-  auto above = first_above_->next_above;
+  first_[kBelow] = first_[kAbove];
+  first_[kBelow]->next[kBelow] = nullptr;
+  auto above = first_[kAbove]->next[kAbove];
   while (above) {
     const auto top_x = Intersect(above, top_y);
-    auto below = first_below_;
+    auto below = first_[kBelow];
     Edge* prev_below = nullptr;
     CoordinateType x{};
     // Process edges that intersect the horizontal line at `top_y` to the right
@@ -1147,7 +1215,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
       }
       AddIntersection(below, above, bottom_y, top_y);
       prev_below = below;
-      below = below->next_below;
+      below = below->next[kBelow];
     }
     // Process edges that intersect the horizontal line at `top_y` at the same
     // point where the active edge does.
@@ -1159,7 +1227,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
           intersections_.emplace_back(VertexType(top_x, top_y), below, above);
         }
         prev_below = below;
-        below = below->next_below;
+        below = below->next[kBelow];
         if (!below) {
           break;
         }
@@ -1167,7 +1235,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
       } while (x == top_x);
     }
     AddToBelow(above, prev_below);
-    above = above->next_above;
+    above = above->next[kAbove];
   }
 
   // Sort the intersections from bottom to top
@@ -1178,6 +1246,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddIntersections(
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
+template <OperationType Operation>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::
     ProcessIntersections(const CoordinateType scan_line_y) {
   intersections_.clear();
@@ -1201,7 +1270,7 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::
 #ifdef TRICLIPPER_DEBUG
     PrintActiveEdges(y, std::cout);
 #endif  // #ifdef TRICLIPPER_DEBUG
-    ProcessEdges(y);
+    ProcessEdges<Operation>(y);
 #ifdef TRICLIPPER_DEBUG
     PrintPolygons(std::cout);
 #endif  // #ifdef TRICLIPPER_DEBUG
@@ -1211,26 +1280,26 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::RemoveEdge(
     const Edge* edge) {
-  if (edge == first_above_) {
-    first_above_ = edge->next_above;
+  if (edge == first_[kAbove]) {
+    first_[kAbove] = edge->next[kAbove];
   }
   if (edge->prev_above) {
-    edge->prev_above->next_above = edge->next_above;
+    edge->prev_above->next[kAbove] = edge->next[kAbove];
   }
-  if (edge->next_above) {
-    edge->next_above->prev_above = edge->prev_above;
+  if (edge->next[kAbove]) {
+    edge->next[kAbove]->prev_above = edge->prev_above;
   }
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::RemoveEdges(
     const CoordinateType scan_line_y) {
-  auto* edge = first_above_;
+  auto* edge = first_[kAbove];
   while (edge) {
     if (vertices_[edge->end_index].y == scan_line_y) {
       RemoveEdge(edge);
     }
-    edge = edge->next_above;
+    edge = edge->next[kAbove];
   }
 }
 
@@ -1253,10 +1322,10 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::PrintLocalMinimums(
       do {
         stream << "-(" << vertices_[edges_[edge].end_index].x << ","
                << vertices_[edges_[edge].end_index].y << ")";
-        if (edges_[edge].next_indices.empty()) {
+        if (edges_[edge].connected_indices.empty()) {
           break;
         }
-        edge = edges_[edge].next_indices.front();
+        edge = edges_[edge].connected_indices.front();
       } while (true);
       // Print right-hand side edges
       edge = minimum.right_index;
@@ -1265,10 +1334,10 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::PrintLocalMinimums(
       do {
         stream << "-(" << vertices_[edges_[edge].end_index].x << ","
                << vertices_[edges_[edge].end_index].y << ")";
-        if (edges_[edge].next_indices.empty()) {
+        if (edges_[edge].connected_indices.empty()) {
           break;
         }
-        edge = edges_[edge].next_indices.front();
+        edge = edges_[edge].connected_indices.front();
       } while (true);
     }
   }
@@ -1281,43 +1350,43 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::PrintActiveEdges(
   stream << "Scan line at " << scan_line_y << ":" << std::endl;
   size_t count = 0;
   // Print above
-  auto edge = first_above_;
+  auto edge = first_[kAbove];
   while (edge) {
     ++count;
-    edge = edge->next_above;
+    edge = edge->next[kAbove];
   }
   stream << count << " edge(s) above";
   if (count) {
     stream << ":";
-    edge = first_above_;
+    edge = first_[kAbove];
     while (edge) {
       const auto& start = vertices_[edge->start_index];
       const auto& end = vertices_[edge->end_index];
       stream << std::endl
              << "(" << start.x << "," << start.y << ")-(" << end.x << ","
              << end.y << ") at " << edge->bx;
-      edge = edge->next_above;
+      edge = edge->next[kAbove];
     }
   }
   stream << std::endl;
   // Print below
   count = 0;
-  edge = first_below_;
+  edge = first_[kBelow];
   while (edge) {
     ++count;
-    edge = edge->next_below;
+    edge = edge->next[kBelow];
   }
   stream << count << " edge(s) below";
   if (count) {
     stream << ":";
-    edge = first_below_;
+    edge = first_[kBelow];
     while (edge) {
       const auto& start = vertices_[edge->start_index];
       const auto& end = vertices_[edge->end_index];
       stream << std::endl
              << "(" << start.x << "," << start.y << ")-(" << end.x << ","
              << end.y << ") at " << edge->bx;
-      edge = edge->next_below;
+      edge = edge->next[kBelow];
     }
   }
   stream << std::endl << std::endl;
@@ -1361,7 +1430,14 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::PrintPolygons(
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 TriClipper<VertexType, CoordinateType, SignedAreaType>::TriClipper()
-    : first_above_(nullptr), first_below_(nullptr) {}
+    : first_{nullptr, nullptr} {
+  static_assert(std::is_integral<CoordinateType>::value,
+                "The coordinate type must be integral");
+  static_assert(std::is_integral<SignedAreaType>::value,
+                "The area type must be integral");
+  static_assert(std::is_signed<SignedAreaType>::value,
+                "The area type must be signed");
+}
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddTriangle(
@@ -1406,14 +1482,15 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::AddTriangle(
   }
   if (e0->end_index == e2->start_index) {
     e2->parity = e0->parity;
-    e0->next_indices.push_back(j2);
+    e0->connected_indices.push_back(j2);
   } else {
     e2->parity = e1->parity;
-    e1->next_indices.push_back(j2);
+    e1->connected_indices.push_back(j2);
   }
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
+template <OperationType Operation>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::Execute() {
   InitLocalMinimums();
 #ifdef TRICLIPPER_DEBUG
@@ -1427,9 +1504,9 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::Execute() {
 #ifdef TRICLIPPER_DEBUG
     PrintActiveEdges(scan_line_y, std::cout);
 #endif  // #ifdef TRICLIPPER_DEBUG
-    ProcessEdges(scan_line_y);
+    ProcessEdges<Operation>(scan_line_y);
     ProcessJoints();
-    ProcessIntersections(scan_line_y);
+    ProcessIntersections<Operation>(scan_line_y);
 #ifdef TRICLIPPER_DEBUG
     PrintPolygons(std::cout);
 #endif  // #ifdef TRICLIPPER_DEBUG

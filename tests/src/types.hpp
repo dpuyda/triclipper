@@ -6,7 +6,7 @@
 
 template <typename T>
 struct Vertex {
-  Vertex(const T x, const T y) : x(x), y(y) {}
+  Vertex(const T x_value, const T y_value) : x(x_value), y(y_value) {}
   Vertex() : Vertex(T(0), T(0)) {}
   T x;
   T y;

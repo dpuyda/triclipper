@@ -3,7 +3,8 @@
 #include <triclipper/triclipper.hpp>
 
 struct Vertex {
-  Vertex(const int32_t x, const int32_t y) : x(x), y(y) {}
+  Vertex(const int32_t x_value, const int32_t y_value)
+      : x(x_value), y(y_value) {}
   Vertex() : Vertex(0, 0) {}
   int32_t x;
   int32_t y;
@@ -21,7 +22,7 @@ int main() {
   clipper.AddTriangle({20, 0}, {0, 20}, {40, 40});
   clipper.AddTriangle({20, 10}, {10, 20}, {30, 30});
 
-  clipper.Execute();
+  clipper.Execute<triclipper::OperationType::kMerge>();
 
   std::vector<Vertex> vertices;
   std::vector<size_t> offsets;

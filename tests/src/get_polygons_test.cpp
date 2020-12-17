@@ -2,20 +2,18 @@
 
 #include <gtest/gtest.h>
 
-std::ostream& operator<<(std::ostream& stream, const Parameters& parameters) {
-  return stream << parameters.triangles;
-}
+namespace {
+using namespace triclipper;
 
-TEST_P(GetPolygonsTest, Test) {
-  const auto& parameters = GetParam();
-
+template <OperationType Operation>
+void RunTest(const Parameters<Operation>& parameters) {
   TriClipper32S clipper;
   const auto& triangles = parameters.triangles;
   for (const auto& triangle : triangles) {
     clipper.AddTriangle(triangle[0], triangle[1], triangle[2]);
   }
 
-  clipper.Execute();
+  clipper.Execute<Operation>();
 
   std::vector<Vertex32S> vertices;
   std::vector<size_t> offsets;
@@ -49,4 +47,15 @@ TEST_P(GetPolygonsTest, Test) {
           << expected_vertex_index;
     }
   }
+}
+}  // anonymous namespace
+
+TEST_P(MergeTest, GetPolygons) {
+  EXPECT_NO_FATAL_FAILURE(
+      RunTest<triclipper::OperationType::kMerge>(GetParam()));
+}
+
+TEST_P(UnionTest, GetPolygons) {
+  EXPECT_NO_FATAL_FAILURE(
+      RunTest<triclipper::OperationType::kUnion>(GetParam()));
 }
