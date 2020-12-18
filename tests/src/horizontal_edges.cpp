@@ -1,4 +1,4 @@
-#include "get_polygons_test.hpp"
+#include "get_polygons_test.h"
 
 namespace {
 using namespace triclipper;

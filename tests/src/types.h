@@ -1,8 +1,9 @@
 #pragma once
 
+#include <triclipper/triclipper.h>
+
 #include <array>
 #include <optional>
-#include <triclipper/triclipper.hpp>
 
 template <typename T>
 struct Vertex {

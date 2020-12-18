@@ -34,13 +34,13 @@ endif()
 add_executable(tests
   src/disjoint_triangles.cpp
   src/edge_intersections.cpp
+  src/get_polygons_test.cpp
+  src/get_polygons_test.h
   src/horizontal_edges.cpp
-  src/polygons_test.cpp
-  src/polygons_test.hpp
   src/three_triangles_inside_triangle.cpp
   src/triangle_inside_triangle.cpp
   src/two_triangles_inside_triangle.cpp
-  src/types.hpp
+  src/types.h
 )
 set_property(TARGET tests PROPERTY CXX_STANDARD 17)
 target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/include)

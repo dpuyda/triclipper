@@ -6,7 +6,7 @@ algorithm.
 ## Usage
 
 To use TriClipper, simply add
-[triclipper.hpp](include/triclipper/triclipper.hpp)
+[triclipper.h](include/triclipper/triclipper.h)
 to your project.
 
 ## How It Works

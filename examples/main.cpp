@@ -1,6 +1,7 @@
+#include <triclipper/triclipper.h>
+
 #include <cstdint>
 #include <iostream>
-#include <triclipper/triclipper.hpp>
 
 struct Vertex {
   Vertex(const int32_t x_value, const int32_t y_value)
