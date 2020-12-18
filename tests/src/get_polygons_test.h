@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "types.hpp"
+#include "types.h"
 
 template <triclipper::OperationType Operation>
 struct Parameters {

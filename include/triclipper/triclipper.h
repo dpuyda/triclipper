@@ -8,6 +8,7 @@
 #include <queue>
 #include <type_traits>
 #include <vector>
+
 #ifdef TRICLIPPER_DEBUG
 #include <ostream>
 #endif  // #ifdef TRICLIPPER_DEBUG
