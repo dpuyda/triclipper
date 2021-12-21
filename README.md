@@ -22,27 +22,27 @@ script [CMakeLists.txt](CMakeLists.txt).
 For example:
 
 1. Create a folder named "build" in the root of the git repository and navigate
-to this folder.
+to this folder:
 
     ```
     mkdir build && cd build
     ```
 
-2. Run CMake from this folder using the BUILD_EXAMPLES and BUILD_TESTS options.
+2. Run CMake:
 
     ```
-    cmake -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON ..
+    cmake ..
     ```
 
-### Debugging
+#### CMake Options
 
-To debug TriClipper, enable the debug output using the DEBUG_OUTPUT option.
+The table below lists available CMake options:
 
-For example:
-
-```
-cmake -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON -DDEBUG_OUTPUT=ON ..
-```
+| Option | Default | Description |
+| :- | :- | :- |
+| BUILD_EXAMPLES | `ON` | Defines if examples should be built. |
+| BUILD_TESTS | `ON` | Defines if tests should be built. |
+| DEBUG_OUTPUT | `ON` | Defines if debug output should be enabled. |
 
 ## License
 

@@ -1,4 +1,4 @@
-// Copyright 2020 by Dmytro Puyda <dpuyda@gmail.com>
+// Copyright 2020-2021 by Dmytro Puyda <dpuyda@gmail.com>
 // Licensed under the MIT License.
 
 #pragma once
@@ -10,6 +10,7 @@
 #include <vector>
 
 #ifdef TRICLIPPER_DEBUG
+#include <iostream>
 #include <ostream>
 #endif  // #ifdef TRICLIPPER_DEBUG
 
@@ -1028,7 +1029,8 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
 
   while (above || below) {
     const auto x = above && below ? std::min(above->bx, below->bx)
-                                  : above ? above->bx : below->bx;
+                   : above        ? above->bx
+                                  : below->bx;
 
     while (interval != intervals_.end() && interval->right <= x) {
       ++interval;

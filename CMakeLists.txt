@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 project(triclipper)
 
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_TESTS "Build tests" OFF)
-option(DEBUG_OUTPUT "Enable debug output" OFF)
+option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_TESTS "Build tests" ON)
+option(DEBUG_OUTPUT "Enable debug output" ON)
 
 # Enable debug output
 if (DEBUG_OUTPUT)
