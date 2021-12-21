@@ -11,7 +11,6 @@
 
 #ifdef TRICLIPPER_DEBUG
 #include <iostream>
-#include <ostream>
 #endif  // #ifdef TRICLIPPER_DEBUG
 
 namespace triclipper {
@@ -55,7 +54,7 @@ class TriClipper {
   /**
    * Executes an operation on the added polygons.
    */
-  template <OperationType Operation>
+  template <OperationType Operation = OperationType::kMerge>
   void Execute();
 
   /**
@@ -1012,18 +1011,21 @@ template <OperationType Operation>
 void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
     const CoordinateType scan_line_y) {
   int parity[2] = {0, 0};
+
   auto* above =
       IsContributing<Operation>(first_[kAbove], parity[kAbove])
           ? first_[kAbove]
           : MoveForward<kAbove, Operation>(first_[kAbove], parity[kAbove]);
+  auto* next_above = MoveForward<kAbove, Operation>(above, parity[kAbove]);
+  Edge* prev_above = nullptr;
+
   auto* below =
       IsContributing<Operation>(first_[kBelow], parity[kBelow])
           ? first_[kBelow]
           : MoveForward<kBelow, Operation>(first_[kBelow], parity[kBelow]);
-  auto* next_above = MoveForward<kAbove, Operation>(above, parity[kAbove]);
   auto* next_below = MoveForward<kBelow, Operation>(below, parity[kBelow]);
-  Edge* prev_above = nullptr;
   Edge* prev_below = nullptr;
+
   auto interval = intervals_.begin();
   auto polygon_index = kInfiniteIndex;
 
