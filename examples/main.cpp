@@ -22,12 +22,11 @@ int main() {
 
   clipper.AddTriangle({20, 0}, {0, 20}, {40, 40});
   clipper.AddTriangle({20, 10}, {10, 20}, {30, 30});
-
   clipper.Execute();
 
   std::vector<Vertex> vertices;
   std::vector<size_t> offsets;
-  const auto polygons_count = clipper.GetPolygons(vertices, offsets);
+  const auto polygons_count = clipper.GetMonotonePolygons(vertices, offsets);
 
   std::cout << polygons_count << " polygon(s):" << std::endl;
   for (size_t polygon_index = 0u; polygon_index < polygons_count;

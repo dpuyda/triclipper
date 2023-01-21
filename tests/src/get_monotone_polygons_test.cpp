@@ -1,4 +1,4 @@
-#include "get_polygons_test.h"
+#include "get_monotone_polygons_test.h"
 
 #include <gtest/gtest.h>
 
@@ -17,7 +17,7 @@ void RunTest(const Parameters<Operation>& parameters) {
 
   std::vector<Vertex32S> vertices;
   std::vector<size_t> offsets;
-  const auto polygons_count = clipper.GetPolygons(vertices, offsets);
+  const auto polygons_count = clipper.GetMonotonePolygons(vertices, offsets);
 
   const auto& expected_polygons = parameters.polygons;
   ASSERT_EQ(polygons_count, expected_polygons.size())
@@ -50,12 +50,12 @@ void RunTest(const Parameters<Operation>& parameters) {
 }
 }  // anonymous namespace
 
-TEST_P(MergeTest, GetPolygons) {
+TEST_P(MergeTest, GetMonotonePolygons) {
   EXPECT_NO_FATAL_FAILURE(
       RunTest<triclipper::OperationType::kMerge>(GetParam()));
 }
 
-TEST_P(UnionTest, GetPolygons) {
+TEST_P(UnionTest, GetMonotonePolygons) {
   EXPECT_NO_FATAL_FAILURE(
       RunTest<triclipper::OperationType::kUnion>(GetParam()));
 }

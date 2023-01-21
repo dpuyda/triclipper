@@ -38,8 +38,8 @@ endif()
 add_executable(tests
   src/disjoint_triangles.cpp
   src/edge_intersections.cpp
-  src/get_polygons_test.cpp
-  src/get_polygons_test.h
+  src/get_monotone_polygons_test.cpp
+  src/get_monotone_polygons_test.h
   src/horizontal_edges.cpp
   src/three_triangles_inside_triangle.cpp
   src/triangle_inside_triangle.cpp

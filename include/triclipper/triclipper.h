@@ -69,8 +69,8 @@ class TriClipper {
    *
    * @return The number of polygons.
    */
-  size_t GetPolygons(std::vector<VertexType>& vertices,
-                     std::vector<size_t>& offsets) const;
+  size_t GetMonotonePolygons(std::vector<VertexType>& vertices,
+                             std::vector<size_t>& offsets) const;
 
  private:
   /// A monotone polygon.
@@ -1520,7 +1520,8 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::Execute() {
 }
 
 template <typename VertexType, typename CoordinateType, typename SignedAreaType>
-size_t TriClipper<VertexType, CoordinateType, SignedAreaType>::GetPolygons(
+size_t
+TriClipper<VertexType, CoordinateType, SignedAreaType>::GetMonotonePolygons(
     std::vector<VertexType>& vertices, std::vector<size_t>& offsets) const {
   offsets.reserve(polygons_.size() + 1u);
   offsets.push_back(0u);
