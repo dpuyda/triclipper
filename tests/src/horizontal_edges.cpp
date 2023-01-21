@@ -190,6 +190,26 @@ std::vector<Parameters<OperationType::kMerge>> CreateParameters() {
     polygons.push_back({{10, 10}, {20, 20}, {30, 10}});
   }
 
+  {
+    auto& [triangles, polygons] = tests.emplace_back();
+
+    triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{100, 0}, Vertex32S{100, 100}});
+    triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{100, 100}, Vertex32S{0, 100}});
+    triangles.push_back(
+        {Vertex32S{50, 50}, Vertex32S{150, 50}, Vertex32S{150, 150}});
+    triangles.push_back(
+        {Vertex32S{50, 50}, Vertex32S{150, 150}, Vertex32S{50, 150}});
+
+    polygons.push_back({{0, 0}, {0, 100}, {50, 100}, {50, 50}});
+    polygons.push_back({{0, 0}, {50, 50}, {100, 50}, {100, 0}});
+    polygons.push_back({{50, 50}, {50, 100}, {100, 100}});
+    polygons.push_back({{50, 50}, {100, 100}, {100, 50}});
+    polygons.push_back({{100, 50}, {100, 100}, {150, 150}, {150, 50}});
+    polygons.push_back({{50, 100}, {50, 150}, {150, 150}, {100, 100}});
+  }
+
   return tests;
 }
 
@@ -347,6 +367,28 @@ std::vector<Parameters<OperationType::kUnion>> CreateParameters() {
 
     polygons.push_back({{0, 0}, {10, 10}, {30, 10}, {40, 0}});
     polygons.push_back({{10, 10}, {20, 20}, {30, 10}});
+  }
+
+  {
+    auto& [triangles, polygons] = tests.emplace_back();
+
+    triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{100, 0}, Vertex32S{100, 100}});
+    triangles.push_back(
+        {Vertex32S{0, 0}, Vertex32S{100, 100}, Vertex32S{0, 100}});
+    triangles.push_back(
+        {Vertex32S{50, 50}, Vertex32S{150, 50}, Vertex32S{150, 150}});
+    triangles.push_back(
+        {Vertex32S{50, 50}, Vertex32S{150, 150}, Vertex32S{50, 150}});
+
+    polygons.push_back({{0, 0},
+                        {0, 100},
+                        {50, 100},
+                        {50, 150},
+                        {150, 150},
+                        {150, 50},
+                        {100, 50},
+                        {100, 0}});
   }
 
   return tests;

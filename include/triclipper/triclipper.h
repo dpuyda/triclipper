@@ -1,4 +1,4 @@
-// Copyright 2020-2021 by Dmytro Puyda <dpuyda@gmail.com>
+// Copyright 2020-2023 by Dmytro Puyda <dpuyda@gmail.com>
 // Licensed under the MIT License.
 
 #pragma once
@@ -1090,7 +1090,8 @@ void TriClipper<VertexType, CoordinateType, SignedAreaType>::ProcessEdges(
       Split(polygon_index, above, x, above->bx, scan_line_y);
       polygon_index = above->polygon_index;
     } else if (below && prev_above && above && prev_above->bx < x &&
-               above->bx > below->bx) {
+               above->bx > below->bx &&
+               below->polygon_index != kInfiniteIndex) {
       Join(prev_above->polygon_index, below->polygon_index, x, below->bx,
            scan_line_y);
     }
